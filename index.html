@@ -1,0 +1,1591 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FUTNEWS | O Seu Portal Principal de Futebol</title>
+    <style>
+        /* ==========================================================================
+           DESIGN SYSTEM & VARIÁVEIS DE ESTILO
+           ========================================================================== */
+        :root {
+            --bg-body: #121212;
+            --bg-surface: #1E1E1E;
+            --bg-card: #282828;
+            --bg-card-hover: #313131;
+            
+            --text-primary: #FFFFFF;
+            --text-secondary: #B3B3B3;
+            --text-muted: #808080;
+            
+            --accent-orange: #FF6600;
+            --accent-orange-hover: #E65C00;
+            --accent-orange-alpha: rgba(255, 102, 0, 0.15);
+            --accent-glow: rgba(255, 102, 0, 0.35);
+            
+            --border-color: #2E2E2E;
+            --border-focus: #FF6600;
+            
+            --font-main: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+            --radius-sm: 6px;
+            --radius-md: 12px;
+            --radius-lg: 18px;
+            
+            --transition-fast: 0.2s ease;
+            --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.5);
+            --shadow-hover: 0 15px 35px rgba(255, 102, 0, 0.2);
+        }
+
+        /* Reset e Estilos Globais */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+            font-family: var(--font-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button, input {
+            font-family: inherit;
+            outline: none;
+            border: none;
+        }
+
+        /* Container Limitador */
+        .container {
+            width: 100%;
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* ==========================================================================
+           BARRA SUPERIOR DE PLACARES AO VIVO (LIVE TICKER)
+           ========================================================================== */
+        .live-ticker-bar {
+            background-color: #0A0A0A;
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.5rem 0;
+            font-size: 0.85rem;
+            overflow: hidden;
+        }
+
+        .ticker-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .ticker-label {
+            background-color: var(--accent-orange);
+            color: #FFFFFF;
+            font-weight: 800;
+            text-transform: uppercase;
+            padding: 0.2rem 0.6rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            white-space: nowrap;
+        }
+
+        .ticker-pulse {
+            width: 8px;
+            height: 8px;
+            background-color: #FFFFFF;
+            border-radius: 50%;
+            animation: pulse 1.2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.3; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .ticker-items {
+            display: flex;
+            gap: 2rem;
+            overflow-x: auto;
+            scrollbar-width: none;
+            white-space: nowrap;
+            width: 100%;
+        }
+
+        .ticker-items::-webkit-scrollbar {
+            display: none;
+        }
+
+        .ticker-item {
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .ticker-item strong {
+            color: var(--text-primary);
+        }
+
+        .ticker-score {
+            color: var(--accent-orange);
+            font-weight: 700;
+            background: var(--bg-surface);
+            padding: 0.1rem 0.4rem;
+            border-radius: 4px;
+        }
+
+        /* ==========================================================================
+           HEADER E NAVEGAÇÃO FIXA
+           ========================================================================== */
+        .main-header {
+            background-color: rgba(30, 30, 30, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid var(--accent-orange);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 75px;
+        }
+
+        /* Logo */
+        .logo {
+            font-size: 2rem;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            color: var(--text-primary);
+        }
+
+        .logo svg {
+            width: 32px;
+            height: 32px;
+            fill: var(--accent-orange);
+        }
+
+        .logo span {
+            color: var(--accent-orange);
+        }
+
+        /* Navigation Menu */
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-link {
+            font-weight: 700;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-primary);
+            position: relative;
+            padding: 0.5rem 0;
+            transition: color var(--transition-fast);
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0%;
+            height: 3px;
+            background-color: var(--accent-orange);
+            border-radius: 2px;
+            transition: width var(--transition-normal);
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--accent-orange);
+        }
+
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 100%;
+        }
+
+        /* Header Actions (Busca e Hamburger) */
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .search-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-input {
+            background-color: var(--bg-body);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.5rem 1rem 0.5rem 2.3rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            width: 180px;
+            transition: all var(--transition-normal);
+        }
+
+        .search-input:focus {
+            width: 240px;
+            border-color: var(--accent-orange);
+            box-shadow: 0 0 10px var(--accent-orange-alpha);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            width: 16px;
+            height: 16px;
+            fill: var(--text-secondary);
+            pointer-events: none;
+        }
+
+        .mobile-toggle {
+            display: none;
+            background: none;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        .mobile-toggle svg {
+            width: 28px;
+            height: 28px;
+            fill: var(--text-primary);
+        }
+
+        /* ==========================================================================
+           HERO SECTION (NOTÍCIA EM DESTAQUE)
+           ========================================================================== */
+        .hero-section {
+            padding: 2.5rem 0 1.5rem;
+        }
+
+        .hero-card {
+            background-color: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            box-shadow: var(--shadow-card);
+            position: relative;
+            transition: border-color var(--transition-normal);
+        }
+
+        .hero-card:hover {
+            border-color: var(--accent-orange);
+        }
+
+        .hero-image-wrapper {
+            position: relative;
+            min-height: 400px;
+            overflow: hidden;
+        }
+
+        .hero-image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+        .hero-card:hover .hero-image-wrapper img {
+            transform: scale(1.04);
+        }
+
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, rgba(30,30,30,0) 50%, rgba(30,30,30,0.9) 100%);
+        }
+
+        .hero-content {
+            padding: 3rem 2.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background-color: var(--bg-surface);
+            position: relative;
+            z-index: 2;
+        }
+
+        .badge {
+            background-color: var(--accent-orange);
+            color: #FFFFFF;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 0.35rem 0.9rem;
+            border-radius: 4px;
+            width: fit-content;
+            margin-bottom: 1.2rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            box-shadow: 0 4px 12px var(--accent-orange-alpha);
+        }
+
+        .hero-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            line-height: 1.25;
+            color: var(--text-primary);
+            margin-bottom: 1.2rem;
+            transition: color var(--transition-fast);
+        }
+
+        .hero-card:hover .hero-title {
+            color: #FFFFFF;
+        }
+
+        .hero-excerpt {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            margin-bottom: 1.8rem;
+            line-height: 1.6;
+        }
+
+        .meta-info {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 2rem;
+            border-top: 1px solid var(--border-color);
+            padding-top: 1rem;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .meta-item svg {
+            width: 14px;
+            height: 14px;
+            fill: var(--accent-orange);
+        }
+
+        /* Botões */
+        .btn-orange {
+            background-color: var(--accent-orange);
+            color: #FFFFFF;
+            font-weight: 700;
+            font-size: 0.95rem;
+            padding: 0.85rem 1.8rem;
+            border-radius: var(--radius-md);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            box-shadow: 0 4px 15px var(--accent-orange-alpha);
+            width: fit-content;
+        }
+
+        .btn-orange:hover {
+            background-color: var(--accent-orange-hover);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .btn-orange svg {
+            width: 16px;
+            height: 16px;
+            fill: #FFFFFF;
+            transition: transform var(--transition-fast);
+        }
+
+        .btn-orange:hover svg {
+            transform: translateX(4px);
+        }
+
+        /* ==========================================================================
+           FILTROS DE CATEGORIA
+           ========================================================================== */
+        .category-filters-bar {
+            padding: 1.5rem 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .section-heading {
+            font-size: 1.6rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .section-heading-bar {
+            width: 6px;
+            height: 24px;
+            background-color: var(--accent-orange);
+            border-radius: 3px;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background-color: var(--bg-surface);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            padding: 0.5rem 1.2rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background-color: var(--accent-orange);
+            color: #FFFFFF;
+            border-color: var(--accent-orange);
+        }
+
+        /* ==========================================================================
+           GRID DE NOTÍCIAS (6 CARDS)
+           ========================================================================== */
+        .news-grid-section {
+            padding-bottom: 4rem;
+        }
+
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+        }
+
+        .news-card {
+            background-color: var(--bg-card);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow-card);
+            transition: all var(--transition-normal);
+            position: relative;
+        }
+
+        .news-card:hover {
+            transform: translateY(-7px);
+            background-color: var(--bg-card-hover);
+            border-color: var(--accent-orange);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .card-image-wrapper {
+            position: relative;
+            height: 210px;
+            overflow: hidden;
+        }
+
+        .card-image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .news-card:hover .card-image-wrapper img {
+            transform: scale(1.08);
+        }
+
+        .card-badge-container {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            z-index: 2;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            line-height: 1.35;
+            color: var(--text-primary);
+            margin-bottom: 0.8rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            transition: color var(--transition-fast);
+        }
+
+        .news-card:hover .card-title {
+            color: var(--accent-orange);
+        }
+
+        .card-excerpt {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            flex-grow: 1;
+        }
+
+        .card-footer {
+            margin-top: auto;
+            border-top: 1px solid var(--border-color);
+            padding-top: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-date {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .card-date svg {
+            width: 13px;
+            height: 13px;
+            fill: var(--text-muted);
+        }
+
+        .btn-card {
+            background-color: var(--accent-orange);
+            color: #FFFFFF;
+            font-weight: 700;
+            font-size: 0.82rem;
+            padding: 0.55rem 1.1rem;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .btn-card:hover {
+            background-color: var(--accent-orange-hover);
+            transform: scale(1.03);
+        }
+
+        /* ==========================================================================
+           BANNER DE INSCRIÇÃO DA NEWSLETTER
+           ========================================================================== */
+        .newsletter-banner {
+            background: linear-gradient(135deg, #1E1E1E 0%, #2A1508 100%);
+            border: 1px solid var(--accent-orange);
+            border-radius: var(--radius-lg);
+            padding: 3rem 2rem;
+            margin-bottom: 4rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 2rem;
+            box-shadow: 0 10px 30px rgba(255, 102, 0, 0.15);
+        }
+
+        .newsletter-info {
+            max-width: 600px;
+        }
+
+        .newsletter-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .newsletter-title span {
+            color: var(--accent-orange);
+        }
+
+        .newsletter-desc {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .newsletter-form {
+            display: flex;
+            gap: 0.8rem;
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .newsletter-input {
+            flex-grow: 1;
+            background-color: var(--bg-body);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.85rem 1.2rem;
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+        }
+
+        .newsletter-input:focus {
+            border-color: var(--accent-orange);
+        }
+
+        /* ==========================================================================
+           RODAPÉ (FOOTER)
+           ========================================================================== */
+        .main-footer {
+            background-color: #0B0B0B;
+            border-top: 1px solid var(--border-color);
+            padding-top: 4rem;
+            margin-top: auto;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr 1fr 1fr;
+            gap: 2.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-brand .logo {
+            margin-bottom: 1rem;
+        }
+
+        .footer-about {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 0.8rem;
+        }
+
+        .social-btn {
+            width: 38px;
+            height: 38px;
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-fast);
+        }
+
+        .social-btn svg {
+            width: 18px;
+            height: 18px;
+            fill: var(--text-secondary);
+        }
+
+        .social-btn:hover {
+            background-color: var(--accent-orange);
+            border-color: var(--accent-orange);
+            transform: translateY(-3px);
+        }
+
+        .social-btn:hover svg {
+            fill: #FFFFFF;
+        }
+
+        .footer-column-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 1.2rem;
+            position: relative;
+            padding-bottom: 0.4rem;
+        }
+
+        .footer-column-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 30px;
+            height: 2px;
+            background-color: var(--accent-orange);
+        }
+
+        .footer-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.7rem;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            transition: color var(--transition-fast);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent-orange);
+        }
+
+        .footer-bottom {
+            background-color: #050505;
+            border-top: 1px solid #1A1A1A;
+            padding: 1.5rem 0;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .footer-bottom-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        /* ==========================================================================
+           MODAL DE LEITURA COMPLETA DA NOTÍCIA
+           ========================================================================== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem 1rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: all var(--transition-normal);
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-container {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--accent-orange);
+            border-radius: var(--radius-lg);
+            max-width: 800px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            transform: translateY(30px);
+            transition: transform var(--transition-normal);
+        }
+
+        .modal-overlay.active .modal-container {
+            transform: translateY(0);
+        }
+
+        .modal-close-btn {
+            position: absolute;
+            top: 1.2rem;
+            right: 1.2rem;
+            background: var(--bg-body);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            transition: all var(--transition-fast);
+        }
+
+        .modal-close-btn:hover {
+            background-color: var(--accent-orange);
+            border-color: var(--accent-orange);
+        }
+
+        .modal-header-img {
+            width: 100%;
+            height: 350px;
+            object-fit: cover;
+        }
+
+        .modal-content-body {
+            padding: 2.5rem;
+        }
+
+        .modal-title {
+            font-size: 2rem;
+            font-weight: 800;
+            line-height: 1.3;
+            margin: 1rem 0;
+        }
+
+        .modal-text {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-share-bar {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            border-top: 1px solid var(--border-color);
+            padding-top: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        /* TOAST SYSTEM (Substituto de Alert) */
+        .toast-container {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 3000;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .toast {
+            background-color: var(--bg-surface);
+            border-left: 4px solid var(--accent-orange);
+            color: var(--text-primary);
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius-sm);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            animation: slideIn 0.3s ease forwards;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* ==========================================================================
+           RESPONSIVIDADE (MEDIA QUERIES)
+           ========================================================================== */
+        @media (max-width: 1024px) {
+            .news-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .hero-card {
+                grid-template-columns: 1fr;
+            }
+            .hero-image-wrapper {
+                min-height: 300px;
+            }
+            .footer-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-menu {
+                position: fixed;
+                top: 75px;
+                left: -100%;
+                width: 100%;
+                height: calc(100vh - 75px);
+                background-color: var(--bg-surface);
+                flex-direction: column;
+                justify-content: center;
+                gap: 2.5rem;
+                transition: left var(--transition-normal);
+            }
+            .nav-menu.mobile-open {
+                left: 0;
+            }
+            .mobile-toggle {
+                display: block;
+            }
+            .search-box {
+                display: none;
+            }
+            .news-grid {
+                grid-template-columns: 1fr;
+            }
+            .hero-title {
+                font-size: 1.6rem;
+            }
+            .hero-content {
+                padding: 1.8rem;
+            }
+            .newsletter-banner {
+                flex-direction: column;
+                text-align: center;
+            }
+            .newsletter-form {
+                flex-direction: column;
+            }
+            .footer-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- BARRA SUPERIOR DE PLACARES AO VIVO -->
+    <div class="live-ticker-bar">
+        <div class="container">
+            <div class="ticker-wrapper">
+                <div class="ticker-label">
+                    <span class="ticker-pulse"></span> AO VIVO
+                </div>
+                <div class="ticker-items">
+                    <div class="ticker-item">
+                        <span>Flamengo</span> <span class="ticker-score">2 - 1</span> <span>Palmeiras</span> <span>(78')</span>
+                    </div>
+                    <div class="ticker-item">•</div>
+                    <div class="ticker-item">
+                        <span>Real Madrid</span> <span class="ticker-score">3 - 1</span> <span>Man. City</span> <span>(Fim)</span>
+                    </div>
+                    <div class="ticker-item">•</div>
+                    <div class="ticker-item">
+                        <span>Boca Juniors</span> <span class="ticker-score">0 - 0</span> <span>River Plate</span> <span>(42')</span>
+                    </div>
+                    <div class="ticker-item">•</div>
+                    <div class="ticker-item">
+                        <span>PSG</span> <span class="ticker-score">2 - 0</span> <span>Bayern Munique</span> <span>(60')</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CABEÇALHO FIXO -->
+    <header class="main-header">
+        <div class="container">
+            <div class="header-content">
+                <!-- Logo -->
+                <a href="#" class="logo">
+                    <svg viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+                        <path d="M12 2a10 10 0 0 1 10 10m-20 0a10 10 0 0 1 10-10M12 7l2.5 3.5h-5L12 7zm0 10l-2.5-3.5h5L12 17z" fill="currentColor"/>
+                    </svg>
+                    FUT<span>NEWS</span>
+                </a>
+
+                <!-- Navegação Principal -->
+                <nav>
+                    <ul class="nav-menu" id="navMenu">
+                        <li><a href="#inicio" class="nav-link active" onclick="filterCategory('todos')">Início</a></li>
+                        <li><a href="#brasileirao" class="nav-link" onclick="filterCategory('brasileirao')">Brasileirão</a></li>
+                        <li><a href="#champions" class="nav-link" onclick="filterCategory('champions')">Champions</a></li>
+                        <li><a href="#mercado" class="nav-link" onclick="filterCategory('mercado')">Mercado da Bola</a></li>
+                    </ul>
+                </nav>
+
+                <!-- Busca e Menu Mobile -->
+                <div class="header-actions">
+                    <div class="search-box">
+                        <svg class="search-icon" viewBox="0 0 24 24">
+                            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                        </svg>
+                        <input type="text" class="search-input" id="searchInput" placeholder="Buscar notícias..." onkeyup="searchNews()">
+                    </div>
+
+                    <button class="mobile-toggle" id="mobileToggle" aria-label="Abrir Menu">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container" id="inicio">
+
+        <!-- DESTAQUE PRINCIPAL (HERO SECTION) -->
+        <section class="hero-section">
+            <article class="hero-card">
+                <div class="hero-image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=1200&q=80" alt="Estádio Iluminado Noturno">
+                    <div class="hero-overlay"></div>
+                </div>
+                <div class="hero-content">
+                    <div>
+                        <span class="badge">🔥 Destaque do Dia</span>
+                    </div>
+                    <h1 class="hero-title">Grande Final da Champions League Tem Palco e Horário Definidos</h1>
+                    <p class="hero-excerpt">Em uma noite histórica de futebol europeu, os dois gigantes continentais confirmam vaga para o confronto mais aguardado do ano. Confira todos os detalhes e a análise tática exclusiva.</p>
+                    <div class="meta-info">
+                        <div class="meta-item">
+                            <svg viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8zm.5-13H11v6l5.2 3.2.8-1.3-4.5-2.7V7z"/></svg>
+                            <span>Há 15 minutos</span>
+                        </div>
+                        <div class="meta-item">
+                            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                            <span>Por Carlos Eduardo</span>
+                        </div>
+                    </div>
+                    <button class="btn-orange" onclick="openModal(0)">
+                        <span>Ler Matéria Completa</span>
+                        <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </button>
+                </div>
+            </article>
+        </section>
+
+        <!-- BARRA DE FILTROS E TÍTULO -->
+        <section class="category-filters-bar">
+            <div class="section-heading">
+                <div class="section-heading-bar"></div>
+                <h2>Feed de Notícias</h2>
+            </div>
+            <div class="filter-tabs">
+                <button class="filter-btn active" onclick="filterCategory('todos')">Todas</button>
+                <button class="filter-btn" onclick="filterCategory('brasileirao')">Brasileirão</button>
+                <button class="filter-btn" onclick="filterCategory('champions')">Champions</button>
+                <button class="filter-btn" onclick="filterCategory('mercado')">Mercado da Bola</button>
+                <button class="filter-btn" onclick="filterCategory('selecao')">Seleção</button>
+                <button class="filter-btn" onclick="filterCategory('libertadores')">Libertadores</button>
+                <button class="filter-btn" onclick="filterCategory('sulamericana')">Sul-Americana</button>
+            </div>
+        </section>
+
+        <!-- GRID DE NOTÍCIAS (6 CARDS) -->
+        <section class="news-grid-section">
+            <div class="news-grid" id="newsGrid">
+
+                <!-- CARD 1: Brasileirão -->
+                <article class="news-card" data-category="brasileirao">
+                    <div class="card-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1579952363873-27f3bade9f55?auto=format&fit=crop&w=800&q=80" alt="Bola no gramado">
+                        <div class="card-badge-container">
+                            <span class="badge">Brasileirão</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title">Virada Épica na Reta Final Garante Liderança Isolada</h3>
+                        <p class="card-excerpt">Com dois gols nos acréscimos, a equipe da casa superou a pressão e assumiu a liderança isolada do Campeonato Brasileiro em um clássico eletrizante.</p>
+                        <div class="card-footer">
+                            <span class="card-date">
+                                <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+                                Há 1 hora
+                            </span>
+                            <button class="btn-card" onclick="openModal(1)">
+                                <span>Ler Notícia</span>
+                            </button>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- CARD 2: Champions -->
+                <article class="news-card" data-category="champions">
+                    <div class="card-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=800&q=80" alt="Jogador de Futebol em Ação">
+                        <div class="card-badge-container">
+                            <span class="badge">Champions</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title">Astro Europeu Quebra Recorde de Gols em Uma Única Edição</h3>
+                        <p class="card-excerpt">Atacante atinge a marca histórica de 17 gols na temporada europeia e comemora feito inédito sob os aplausos da torcida presente.</p>
+                        <div class="card-footer">
+                            <span class="card-date">
+                                <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+                                Há 3 horas
+                            </span>
+                            <button class="btn-card" onclick="openModal(2)">
+                                <span>Ler Notícia</span>
+                            </button>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- CARD 3: Mercado da Bola -->
+                <article class="news-card" data-category="mercado">
+                    <div class="card-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1560272564-c83b66b1ad12?auto=format&fit=crop&w=800&q=80" alt="Chute na bola de futebol">
+                        <div class="card-badge-container">
+                            <span class="badge">Mercado da Bola</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title">Proposta Milionária da Premier League Balança Meio-Campista</h3>
+                        <p class="card-excerpt">Clube inglês prepara oferta na casa dos 80 milhões de euros para fechar a contratação da jovem promessa sul-americana na próxima janela.</p>
+                        <div class="card-footer">
+                            <span class="card-date">
+                                <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+                                Há 4 horas
+                            </span>
+                            <button class="btn-card" onclick="openModal(3)">
+                                <span>Ler Notícia</span>
+                            </button>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- CARD 4: Seleção -->
+                <article class="news-card" data-category="selecao">
+                    <div class="card-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1518091043644-c1d4457512c6?auto=format&fit=crop&w=800&q=80" alt="Chuteira e bola de futebol">
+                        <div class="card-badge-container">
+                            <span class="badge">Seleção</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title">Técnico Anuncia Convocação Com Novidades para Amistosos</h3>
+                        <p class="card-excerpt">Treinador surpreende ao chamar três destaques do futebol nacional e promover a volta de veterano para os testes internacionais de data FIFA.</p>
+                        <div class="card-footer">
+                            <span class="card-date">
+                                <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+                                Há 6 horas
+                            </span>
+                            <button class="btn-card" onclick="openModal(4)">
+                                <span>Ler Notícia</span>
+                            </button>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- CARD 5: Libertadores -->
+                <article class="news-card" data-category="libertadores">
+                    <div class="card-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?auto=format&fit=crop&w=800&q=80" alt="Gol de Futebol com rede">
+                        <div class="card-badge-container">
+                            <span class="badge">Libertadores</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title">Noite Semifinal Promete Altitude e Caldeirão Lotado na Bolívia</h3>
+                        <p class="card-excerpt">Adversários se preparam para desafio extremo a mais de 3.600 metros de altitude em confronto decisivo em busca da cobiçada Glória Eterna.</p>
+                        <div class="card-footer">
+                            <span class="card-date">
+                                <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+                                Há 7 horas
+                            </span>
+                            <button class="btn-card" onclick="openModal(5)">
+                                <span>Ler Notícia</span>
+                            </button>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- CARD 6: Sul-Americana -->
+                <article class="news-card" data-category="sulamericana">
+                    <div class="card-image-wrapper">
+                        <img src="https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=800&q=80" alt="Torcida de Futebol no Estádio">
+                        <div class="card-badge-container">
+                            <span class="badge">Sul-Americana</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title">Nos Pênaltis, Goleiro Vira Herói e Classifica Equipe</h3>
+                        <p class="card-excerpt">Defendendo duas cobranças cruciais, arqueiro garante vaga histórica nas quartas de final após empate sem gols no tempo regulamentar.</p>
+                        <div class="card-footer">
+                            <span class="card-date">
+                                <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+                                Há 9 horas
+                            </span>
+                            <button class="btn-card" onclick="openModal(6)">
+                                <span>Ler Notícia</span>
+                            </button>
+                        </div>
+                    </div>
+                </article>
+
+            </div>
+        </section>
+
+        <!-- BANNER NEWSLETTER -->
+        <section class="newsletter-banner">
+            <div class="newsletter-info">
+                <h3 class="newsletter-title">Receba as Notícias em <span>Primeira Mão</span></h3>
+                <p class="newsletter-desc">Cadastre seu e-mail e receba o boletim diário com análises, bastidores do mercado da bola e resumos das rodadas.</p>
+            </div>
+            <form class="newsletter-form" onsubmit="handleNewsletter(event)">
+                <input type="email" class="newsletter-input" placeholder="Digite seu melhor e-mail..." required>
+                <button type="submit" class="btn-orange">Inscrever</button>
+            </form>
+        </section>
+
+    </main>
+
+    <!-- RODAPÉ INSTITUCIONAL -->
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-grid">
+                
+                <!-- Coluna 1: Sobre -->
+                <div class="footer-brand">
+                    <a href="#" class="logo">
+                        <svg viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+                            <path d="M12 2a10 10 0 0 1 10 10m-20 0a10 10 0 0 1 10-10M12 7l2.5 3.5h-5L12 7zm0 10l-2.5-3.5h5L12 17z" fill="currentColor"/>
+                        </svg>
+                        FUT<span>NEWS</span>
+                    </a>
+                    <p class="footer-about">
+                        O FUTNEWS é o seu portal de referência em cobertura jornalística de futebol. Cobertura completa dos principais campeonatos do Brasil e do mundo com agilidade, imparcialidade e paixão pelo esporte.
+                    </p>
+                    <div class="social-links">
+                        <a href="#" class="social-btn" aria-label="Twitter">
+                            <svg viewBox="0 0 24 24"><path d="M22.46 6c-.77.35-1.6.58-2.46.69.88-.53 1.56-1.37 1.88-2.38-.83.5-1.75.85-2.72 1.05C18.37 4.5 17.26 4 16 4c-2.35 0-4.27 1.92-4.27 4.29 0 .34.04.67.11.98C8.28 9.09 5.11 7.38 3 4.79c-.37.63-.58 1.37-.58 2.15 0 1.49.75 2.81 1.91 3.56-.71 0-1.37-.2-1.95-.5v.05c0 2.08 1.48 3.82 3.44 4.21a4.22 4.22 0 0 1-1.93.07 4.28 4.28 0 0 0 4 2.98 8.58 8.58 0 0 1-5.33 1.84c-.34 0-.68-.02-1.02-.06C3.44 20.29 5.7 21 8.12 21 16 21 20.33 14.46 20.33 8.79c0-.19 0-.37-.01-.56.84-.6 1.56-1.36 2.14-2.23z"/></svg>
+                        </a>
+                        <a href="#" class="social-btn" aria-label="Instagram">
+                            <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                        </a>
+                        <a href="#" class="social-btn" aria-label="YouTube">
+                            <svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Coluna 2: Categorias -->
+                <div>
+                    <h4 class="footer-column-title">Categorias</h4>
+                    <ul class="footer-links">
+                        <li><a href="#" onclick="filterCategory('brasileirao')">Brasileirão Série A</a></li>
+                        <li><a href="#" onclick="filterCategory('champions')">UEFA Champions League</a></li>
+                        <li><a href="#" onclick="filterCategory('mercado')">Mercado da Bola</a></li>
+                        <li><a href="#" onclick="filterCategory('selecao')">Seleção Brasileira</a></li>
+                        <li><a href="#" onclick="filterCategory('libertadores')">Copa Libertadores</a></li>
+                        <li><a href="#" onclick="filterCategory('sulamericana')">Copa Sul-Americana</a></li>
+                    </ul>
+                </div>
+
+                <!-- Coluna 3: Institucional -->
+                <div>
+                    <h4 class="footer-column-title">Institucional</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">Sobre Nós</a></li>
+                        <li><a href="#">Equipe Editorial</a></li>
+                        <li><a href="#">Política de Privacidade</a></li>
+                        <li><a href="#">Termos de Uso</a></li>
+                        <li><a href="#">Anuncie Conosco</a></li>
+                        <li><a href="#">Fale Conosco</a></li>
+                    </ul>
+                </div>
+
+                <!-- Coluna 4: Contato / Parceiros -->
+                <div>
+                    <h4 class="footer-column-title">Central de Atendimento</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">redacao@futnews.com.br</a></li>
+                        <li><a href="#">comercial@futnews.com.br</a></li>
+                        <li><a href="#">imprensa@futnews.com.br</a></li>
+                        <li><a href="#">São Paulo - SP, Brasil</a></li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- DIREITOS AUTORAIS -->
+        <div class="footer-bottom">
+            <div class="container">
+                <div class="footer-bottom-content">
+                    <p>&copy; 2026 FUTNEWS Portal Esportivo Ltda. Todos os direitos reservados.</p>
+                    <p>Design System: Dark & Vibrant Orange Edition</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- MODAL DE LEITURA INTEGRADA DA NOTÍCIA -->
+    <div class="modal-overlay" id="newsModal" onclick="closeModalOnOuterClick(event)">
+        <div class="modal-container">
+            <button class="modal-close-btn" onclick="closeModal()" aria-label="Fechar Notícia">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+            <img id="modalImage" class="modal-header-img" src="" alt="Imagem da Notícia">
+            <div class="modal-content-body">
+                <span id="modalBadge" class="badge">Categoria</span>
+                <h2 id="modalTitle" class="modal-title">Título da Notícia</h2>
+                <div class="meta-info">
+                    <div class="meta-item">
+                        <svg viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8zm.5-13H11v6l5.2 3.2.8-1.3-4.5-2.7V7z"/></svg>
+                        <span id="modalTime">Publicado recentemente</span>
+                    </div>
+                    <div class="meta-item">
+                        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                        <span>Redação FUTNEWS</span>
+                    </div>
+                </div>
+                <div id="modalText" class="modal-text">
+                    <!-- Conteúdo dinâmico preenchido via JS -->
+                </div>
+                <div class="modal-share-bar">
+                    <span style="font-weight: 700; font-size: 0.9rem; color: var(--text-primary);">Compartilhar matéria:</span>
+                    <button class="btn-card" onclick="copyNewsLink()">
+                        <span>Copiar Link</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RECEPTÁCULO PARA TOASTS -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- JAVASCRIPT INTERATIVO (LÓGICA TOTALMENTE AUTÔNOMA) -->
+    <script>
+        // Dados das Notícias para o Modal
+        const newsDatabase = [
+            {
+                title: "Grande Final da Champions League Tem Palco e Horário Definidos",
+                category: "Destaque do Dia",
+                image: "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=1200&q=80",
+                time: "Há 15 minutos",
+                text: "<p>A União das Associações Europeias de Futebol (UEFA) oficializou na manhã desta segunda-feira os detalhes definitivos para a grande final da UEFA Champions League. O duelo promete ser uma das maiores finais da década com dois esquemas táticos impecáveis confrontando-se em campo neutro.</p><p>Os técnicos das duas equipes já iniciaram as preparações físicas e psicológicas específicas para o confronto. A expectativa de público é de mais de 75 mil torcedores no estádio, além de uma audiência global estimada em mais de 400 milhões de espectadores.</p>"
+            },
+            {
+                title: "Virada Épica na Reta Final Garante Liderança Isolada",
+                category: "Brasileirão",
+                image: "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?auto=format&fit=crop&w=800&q=80",
+                time: "Há 1 hora",
+                text: "<p>Em uma partida de tirar o fôlego realizada no estádio lotado, o time da casa conseguiu uma virada memorável nos acréscimos do segundo tempo. O resultado por 3 a 2 garantiu a liderança isolada do Campeonato Brasileiro a cinco rodadas do fim da competição.</p><p>O treinador destacou a garra do elenco na coletiva de imprensa: 'Nossos jogadores nunca deixaram de acreditar, mesmo quando estávamos atrás no placar no segundo tempo'.</p>"
+            },
+            {
+                title: "Astro Europeu Quebra Recorde de Gols em Uma Única Edição",
+                category: "Champions",
+                image: "https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=800&q=80",
+                time: "Há 3 horas",
+                text: "<p>O atacante viveu uma noite abençoada ao balançar as redes três vezes na partida de ontem. Com este hat-trick, ele alcançou a incrível marca de 17 gols na atual edição do torneio continental, superando a marca histórica anterior.</p><p>Comparações com lendas do futebol mundial inundaram as redes sociais após a partida, consagrando a temporada do camisa 9 como uma das mais dominantes da história recente.</p>"
+            },
+            {
+                title: "Proposta Milionária da Premier League Balança Meio-Campista",
+                category: "Mercado da Bola",
+                image: "https://images.unsplash.com/photo-1560272564-c83b66b1ad12?auto=format&fit=crop&w=800&q=80",
+                time: "Há 4 horas",
+                text: "<p>O mercado da bola esquentou nesta tarde com a informação trazida em primeira mão pela nossa equipe: um gigante do futebol inglês formalizou uma proposta de 80 milhões de euros para adquirir a promessa do futebol sul-americano.</p><p>A diretoria do clube detentor dos direitos contratuais deve se reunir nos próximos dias para avaliar os termos de pagamento e bônus de metas.</p>"
+            },
+            {
+                title: "Técnico Anuncia Convocação Com Novidades para Amistosos",
+                category: "Seleção",
+                image: "https://images.unsplash.com/photo-1518091043644-c1d4457512c6?auto=format&fit=crop&w=800&q=80",
+                time: "Há 6 horas",
+                text: "<p>Na sede da confederação, o comandante da Seleção divulgou a lista dos 26 atletas chamados para a próxima Data FIFA. Entre os nomes, três jovens talentos do futebol brasileiro receberam sua primeira oportunidade na equipe principal.</p><p>Os amistosos servirão como teste final antes do início da preparação para o próximo torneio oficial.</p>"
+            },
+            {
+                title: "Noite Semifinal Promete Altitude e Caldeirão Lotado na Bolívia",
+                category: "Libertadores",
+                image: "https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?auto=format&fit=crop&w=800&q=80",
+                time: "Há 7 horas",
+                text: "<p>O desafio da altitude volta a ser o grande obstáculo tático da rodada da Copa Libertadores. A equipe visitante desembarcou três dias antes para amenizar os impactos físicos dos 3.600 metros acima do nível do mar.</p><p>Estudos médicos e oxigenação reforçada foram preparados pela comissão técnica para garantir o rendimento físico durante os 90 minutos.</p>"
+            },
+            {
+                title: "Nos Pênaltis, Goleiro Vira Herói e Classifica Equipe",
+                category: "Sul-Americana",
+                image: "https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=800&q=80",
+                time: "Há 9 horas",
+                text: "<p>Em uma disputa dramática por penalidades máximas, o arqueiro defendeu duas cobranças e selou a vaga de seu time na fase seguinte da Copa Sul-Americana diante de mais de 45 mil torcedores entusiasmados.</p><p>'Treinamos pênaltis intensamente durante a semana e a leitura dos cobradores deu resultado', declarou o herói da noite.</p>"
+            }
+        ];
+
+        // Lógica de Filtro por Categoria
+        function filterCategory(category) {
+            const cards = document.querySelectorAll('.news-card');
+            const buttons = document.querySelectorAll('.filter-btn');
+            const navLinks = document.querySelectorAll('.nav-link');
+
+            // Atualizar botões de filtro ativos
+            buttons.forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent.toLowerCase().includes(category) || (category === 'todos' && btn.textContent === 'Todas')) {
+                    btn.classList.add('active');
+                }
+            });
+
+            // Atualizar nav links do cabeçalho
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('onclick') && link.getAttribute('onclick').includes(category)) {
+                    link.classList.add('active');
+                }
+            });
+
+            // Filtrar cards com animação
+            cards.forEach(card => {
+                const cardCat = card.getAttribute('data-category');
+                if (category === 'todos' || cardCat === category) {
+                    card.style.display = 'flex';
+                    setTimeout(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, 50);
+                } else {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(15px)';
+                    setTimeout(() => {
+                        card.style.display = 'none';
+                    }, 200);
+                }
+            });
+        }
+
+        // Lógica de Busca Instantânea
+        function searchNews() {
+            const input = document.getElementById('searchInput').value.toLowerCase();
+            const cards = document.querySelectorAll('.news-card');
+
+            cards.forEach(card => {
+                const title = card.querySelector('.card-title').textContent.toLowerCase();
+                const excerpt = card.querySelector('.card-excerpt').textContent.toLowerCase();
+                
+                if (title.includes(input) || excerpt.includes(input)) {
+                    card.style.display = 'flex';
+                    card.style.opacity = '1';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // Lógica do Modal de Leitura
+        function openModal(id) {
+            const data = newsDatabase[id];
+            if (!data) return;
+
+            document.getElementById('modalImage').src = data.image;
+            document.getElementById('modalBadge').textContent = data.category;
+            document.getElementById('modalTitle').textContent = data.title;
+            document.getElementById('modalTime').textContent = data.time;
+            document.getElementById('modalText').innerHTML = data.text;
+
+            const modal = document.getElementById('newsModal');
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('newsModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        function closeModalOnOuterClick(event) {
+            if (event.target.id === 'newsModal') {
+                closeModal();
+            }
+        }
+
+        // Sistema de Notificações Toast
+        function showToast(message) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="#FF6600"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                <span>${message}</span>
+            `;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100%)';
+                toast.style.transition = 'all 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function copyNewsLink() {
+            const dummy = document.createElement('input');
+            document.body.appendChild(dummy);
+            dummy.value = window.location.href;
+            dummy.select();
+            document.execCommand('copy');
+            document.body.removeChild(dummy);
+
+            showToast("Link da notícia copiado para a área de transferência!");
+        }
+
+        function handleNewsletter(e) {
+            e.preventDefault();
+            const input = e.target.querySelector('input');
+            if (input.value) {
+                showToast("Obrigado por se inscrever no FUTNEWS!");
+                input.value = '';
+            }
+        }
+
+        // Menu Mobile Toggle
+        document.getElementById('mobileToggle').addEventListener('click', function() {
+            const navMenu = document.getElementById('navMenu');
+            navMenu.classList.toggle('mobile-open');
+        });
+
+        // Fechar menu mobile ao clicar em um link
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                document.getElementById('navMenu').classList.remove('mobile-open');
+            });
+        });
+    </script>
+</body>
+</html>
